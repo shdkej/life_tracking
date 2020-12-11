@@ -5,21 +5,54 @@ const headers = [
     { label: "Date", key: "date" },
     { label: "Sleep", key: "sleep" },
     { label: "Money", key: "money" },
+    { label: "PC", key: "pc" },
+    { label: "Mobile", key: "mobile" },
+    { label: "Food", key: "food" },
+    { label: "Read", key: "read" },
+    { label: "Movie", key: "movie" },
+    { label: "Walk", key: "walk" },
 ];
 
 class ExportCSV extends Component {
     constructor(props) {
         super(props);
+        const today = new Date().toISOString().slice(0, 10);
         this.state = {
             csvReport: {
                 data: [],
                 headers: [],
                 filename: 'daily_tracking.csv'
             },
-            sleep: '',
-            money: '',
             data: [],
+            inputs: [
+                {name: "date", value:today},
+                {name: "sleep", value: "9"},
+                {name: "money", value: ""},
+                {name: "pc", value: ""},
+                {name: "mobile", value: ""},
+                {name: "food", value: ""},
+                {name: "read", value: ""},
+                {name: "movie", value: ""},
+                {name: "walk", value: ""},
+            ]
         }
+    }
+
+    renderInput = (input, i) => {
+        return (
+            <div>
+            <label>
+                {input.name}
+              <input
+                type="text"
+                name={input.name}
+                value={input.value}
+                onChange={this.handleChange.bind(this, i)}
+                autoComplete="off"
+              />
+            </label>
+            </div>
+        )
     }
 
     downloadReport = (event, done) => {
@@ -33,20 +66,30 @@ class ExportCSV extends Component {
       });
     }
 
-    handleChange = (event) => {
+    handleChange = (i, event) => {
         const value = event.target.value;
-        this.setState({
-            [event.target.name]: value
-            }, () => {
-        });
+        let inputs = this.state.inputs.slice();
+        inputs.map((item, i) => {
+            if (item.name === event.target.name) {
+                item.value = value
+                return this.setState({inputs});
+            }
+            return item
+        })
+    }
+
+    handleRemove = (i) => {
+        this.setState((state) => {
+            const data = state.data.filter((item, j) => j !== i);
+            return { data, };
+        })
     }
 
     handleSubmit = (event) => {
-        const newData = {
-            date: Date.now(),
-            sleep: this.state.sleep,
-            money: this.state.money,
-        }
+        const newData = {}
+        this.state.inputs.map((input) => {
+            return newData[input.name] = input.value
+        })
 
         this.setState((prevState) => {
             return {
@@ -61,25 +104,8 @@ class ExportCSV extends Component {
         return(
             <div>
               <form onSubmit={this.handleSubmit}>
-                <label>
-                  Sleep
-                  <input
-                    type="text"
-                    name="sleep"
-                    value={this.state.sleep}
-                    onChange={this.handleChange}
-                  />
-                </label>
+                {this.state.inputs.map((item, i) => this.renderInput(item, i))}
                 <br/>
-                <label>
-                  Money
-                  <input
-                    type="text"
-                    name="money"
-                    value={this.state.money}
-                    onChange={this.handleChange}
-                  />
-                </label>
                 <button>submit</button>
               </form>
                   <CSVLink {...this.state.csvReport}
@@ -89,7 +115,19 @@ class ExportCSV extends Component {
                     Export to CSV
                   </CSVLink>
                 {this.state.data.map((item, i) => (
-                    <li key={i}>{item.sleep}, {item.money}</li>
+                    <li key={i}>
+                        {item.date}
+                        {item.sleep ? "🛌" + item.sleep : ''}
+                        {item.money ? "💵" + item.money : ''}
+                        {item.food ? "💵" + item.food : ''}
+                        {item.walk ? "💵" + item.walk : ''}
+                        {item.pc ? "💵" + item.pc : ''}
+                        {item.mobile ? "💵" + item.mobile : ''}
+                        {item.food ? "💵" + item.food : ''}
+                        {item.read ? "💵" + item.read : ''}
+                        {item.movie ? "💵" + item.movie : ''}
+                        <button type="button" onClick={() => this.handleRemove(i)}>x</button>
+                    </li>
                 ))}
             </div>
         );
