@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
+    "google-spreadsheet": "^3.0.14",
     "react": "^16.9.0",
     "react-csv": "^2.0.3",
     "react-dom": "^16.9.0",

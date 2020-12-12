@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import ExportCSV from './ExportCSV.js';
+import GS from './google_spread.js';
 import './App.css';
 
 class App extends Component {
   constructor() {
     super();
 
-    this.state = {};
+    this.state = {
+        data: []
+    };
   }
 
   componentDidMount() {
@@ -36,13 +39,21 @@ class App extends Component {
     return data;
   };
 
+  handleCallback = (childData) => {
+      this.setState((prevState) => {
+          return {
+              data: childData
+          };
+      })
+  }
+
   render() {
+    const {data} = this.state;
     return (
       <div className="App">
-        <header className="App-header">
           <h1>Tracking</h1>
-          <ExportCSV />
-        </header>
+          <ExportCSV parentCallback={this.handleCallback}/>
+          <GS parentToChild={data}/>
       </div>
     );
   }

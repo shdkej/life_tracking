@@ -11,6 +11,7 @@ const headers = [
     { label: "Read", key: "read" },
     { label: "Movie", key: "movie" },
     { label: "Walk", key: "walk" },
+    { label: "Code", key: "code" },
 ];
 
 class ExportCSV extends Component {
@@ -25,23 +26,23 @@ class ExportCSV extends Component {
             },
             data: [],
             inputs: [
-                {name: "date", value:today},
-                {name: "sleep", value: "9"},
-                {name: "money", value: ""},
-                {name: "pc", value: ""},
-                {name: "mobile", value: ""},
-                {name: "food", value: ""},
-                {name: "read", value: ""},
-                {name: "movie", value: ""},
-                {name: "walk", value: ""},
+                {name: "date", value: today, symbol: "🛌"},
+                {name: "sleep", value: "9", symbol: "🛌"},
+                {name: "money", value: "", symbol: "💵"},
+                {name: "pc", value: "", symbol: "💻"},
+                {name: "mobile", value: "", symbol: "📱"},
+                {name: "food", value: "", symbol: "🥢"},
+                {name: "read", value: "", symbol: "📚"},
+                {name: "movie", value: "", symbol: "🎞️"},
+                {name: "walk", value: "", symbol: "🦶"},
+                {name: "code", value: "", symbol: "🚀"},
             ]
         }
     }
 
     renderInput = (input, i) => {
         return (
-            <div>
-            <label>
+            <label key={i}>
                 {input.name}
               <input
                 type="text"
@@ -51,7 +52,24 @@ class ExportCSV extends Component {
                 autoComplete="off"
               />
             </label>
-            </div>
+        )
+    }
+
+    renderOutput = (item, i) => {
+        return (
+            <li key={i}>
+                {item.date}
+                {item.sleep ? "🛌" + item.sleep : ''}
+                {item.money ? "💵" + item.money : ''}
+                {item.walk ? "🦶" + item.walk : ''}
+                {item.pc ? "💻" + item.pc : ''}
+                {item.mobile ? "📱" + item.mobile : ''}
+                {item.food ? "🥢" + item.food : ''}
+                {item.read ? "📚" + item.read : ''}
+                {item.movie ? "🎞️ " + item.movie : ''}
+                {item.code ? "🚀 " + item.code : ''}
+                <button type="button" onClick={() => this.handleRemove(i)}>x</button>
+            </li>
         )
     }
 
@@ -81,6 +99,7 @@ class ExportCSV extends Component {
     handleRemove = (i) => {
         this.setState((state) => {
             const data = state.data.filter((item, j) => j !== i);
+            this.props.parentCallback(data);
             return { data, };
         })
     }
@@ -92,8 +111,10 @@ class ExportCSV extends Component {
         })
 
         this.setState((prevState) => {
+            const updatedData = prevState.data.concat(newData);
+            this.props.parentCallback(updatedData)
             return {
-                data: prevState.data.concat(newData)
+                data: updatedData
             };
         })
 
@@ -105,30 +126,19 @@ class ExportCSV extends Component {
             <div>
               <form onSubmit={this.handleSubmit}>
                 {this.state.inputs.map((item, i) => this.renderInput(item, i))}
-                <br/>
-                <button>submit</button>
+                <button>save</button>
               </form>
-                  <CSVLink {...this.state.csvReport}
-                            asyncOnClick={true}
-                            onClick={this.downloadReport}
-                  >
-                    Export to CSV
-                  </CSVLink>
-                {this.state.data.map((item, i) => (
-                    <li key={i}>
-                        {item.date}
-                        {item.sleep ? "🛌" + item.sleep : ''}
-                        {item.money ? "💵" + item.money : ''}
-                        {item.food ? "💵" + item.food : ''}
-                        {item.walk ? "💵" + item.walk : ''}
-                        {item.pc ? "💵" + item.pc : ''}
-                        {item.mobile ? "💵" + item.mobile : ''}
-                        {item.food ? "💵" + item.food : ''}
-                        {item.read ? "💵" + item.read : ''}
-                        {item.movie ? "💵" + item.movie : ''}
-                        <button type="button" onClick={() => this.handleRemove(i)}>x</button>
-                    </li>
-                ))}
+              <CSVLink {...this.state.csvReport}
+                asyncOnClick={true}
+                onClick={this.downloadReport}
+              >
+                Export to CSV
+              </CSVLink>
+              {this.state.data.map((item, i) => (
+                    <div key={i}>
+                        {this.renderOutput(item, i)}
+                    </div>
+              ))}
             </div>
         );
     }
